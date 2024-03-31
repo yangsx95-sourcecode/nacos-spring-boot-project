@@ -33,11 +33,14 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 /**
+ * web容器启动后，注册服务到nacos
  * @author <a href="mailto:liaochunyhm@live.com">liaochuntao</a>
  * @since 0.1.3
  */
 @Component
 public class NacosDiscoveryAutoRegister
+		// 嵌入式 Servlet 容器启动并准备好接收请求时，会触发 EmbeddedServletContainerInitializedEvent 事件。
+		// 事件还会提供 容器的端口号和上下文路径等其他容器信息
 		implements ApplicationListener<EmbeddedServletContainerInitializedEvent> {
 
 	private static final Logger logger = LoggerFactory
@@ -59,8 +62,10 @@ public class NacosDiscoveryAutoRegister
 			return;
 		}
 
+		// 根据配置文件获取注册中心
 		Register register = discoveryProperties.getRegister();
 
+		// 设置默认值值
 		if (StringUtils.isEmpty(register.getIp())) {
 			register.setIp(NetUtils.localIP());
 		}
@@ -69,13 +74,16 @@ public class NacosDiscoveryAutoRegister
 			register.setPort(event.getSource().getPort());
 		}
 
+		// 设置注册的来源是SpringBoot应用程序
 		register.getMetadata().put("preserved.register.source", "SPRING_BOOT");
 
 		register.setInstanceId("");
+		// 默认的服务名称是应用程序名称
 		String serviceName = StringUtils.isEmpty(register.getServiceName()) ? application
 				: register.getServiceName();
 
 		try {
+			// 调用注册服务注册服务实例
 			namingService.registerInstance(serviceName, register.getGroupName(),
 					register);
 			logger.info("Finished auto register service : {}, ip : {}, port : {}",

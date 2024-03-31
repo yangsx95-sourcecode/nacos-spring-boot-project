@@ -33,11 +33,14 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;
 
 /**
+ * 应用程序上下文关闭时，从注册表移除服务实例
  * @author <a href="mailto:liaochunyhm@live.com">liaochuntao</a>
  * @since 0.1.4
  */
 @Component
 public class NacosDiscoveryAutoDeregister
+		// 当应用程序上下文关闭时，会触发 ContextClosedEvent 事件。
+		// 这个事件通常在应用程序关闭或停止时被触发，可以用于执行一些清理操作或释放资源的逻辑。
 		implements ApplicationListener<ContextClosedEvent> {
 
 	private static final Logger logger = LoggerFactory
